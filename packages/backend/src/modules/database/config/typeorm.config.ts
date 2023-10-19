@@ -31,7 +31,7 @@ export const createDataSourceConfigBase = (): DataSourceOptions => {
   const password = configService.get('DB_PASSWORD');
 
   const database = getDatabase();
-  const synchronize = getSynchronize();
+  const synchronize = true;
 
   return {
     type: 'postgres',

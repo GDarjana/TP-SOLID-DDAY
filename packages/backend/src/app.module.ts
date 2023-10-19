@@ -5,7 +5,7 @@ import { DatabaseModule } from '@src/modules/database/database.module';
 
 import MentoringSlotModule from '@src/modules/mentoring-slot/mentoring-slot.module';
 import SharedModule from '@src/modules/shared/shared.module';
-import OrderModule from '@src/modules/order/order-slot.module';
+import OrderModule from '@src/modules/order/order.module';
 
 @Module({
   imports: [

@@ -4,4 +4,6 @@ export enum ExceptionTypeEnum {
   InternalServerError = 'InternalServerError',
   Unauthorized = 'Unauthorized',
   Forbidden = 'Forbidden',
+  // Date format is not supported
+  WrongDateFormat = 'WrongDateFormat',
 }
