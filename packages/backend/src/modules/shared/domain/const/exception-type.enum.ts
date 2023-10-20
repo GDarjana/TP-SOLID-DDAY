@@ -6,4 +6,6 @@ export enum ExceptionTypeEnum {
   Forbidden = 'Forbidden',
   // Date format is not supported
   WrongDateFormat = 'WrongDateFormat',
+  // Customer name is not valid
+  WrongCustomerName = 'WrongCustomerName',
 }

@@ -29,47 +29,17 @@ export default class OrderRepository extends Repository<Order> implements OrderR
   }
 
   // - Récupérer toutes les commandes AVANT une date
-  async findAllOrdersBeforeDate(date: String): Promise<Order[]> {
-    //--------- CONVERT DATE
-    const datePattern = /^(\d{2})-(\d{2})-(\d{4})$/;
-    const match = date.match(datePattern);
-    // Extrait les parties de la date de la correspondance
-    var day = parseInt(match[1], 10);
-    var month = parseInt(match[2], 10) - 1;
-    var year = parseInt(match[3], 10);
-    var formattedDate = new Date(year, month, day);
-    // Vérifie si la date est valide en comparant les composantes de la date
-    var isValid = formattedDate.getDate() === day && formattedDate.getMonth() === month && formattedDate.getFullYear() === year;
-    if (!isValid) {
-      throw new Exception(ExceptionTypeEnum.WrongDateFormat, 'The date format is not valid');
-    }
-
-    //--------- QUERY REQUEST
+  async findAllOrdersBeforeDate(date: Date): Promise<Order[]> {
     const query = this.createQueryBuilder('order');
-    query.where('order.createdAt < :date', { date: formattedDate });
+    query.where('order.createdAt < :date', { date: date });
     const ordersOrm = await query.getMany();
     return this.mapOrdersOrmToOrders(ordersOrm);
   }
 
   // - Récupérer toutes les commandes APRES une date
-  async findAllOrdersAfterDate(date: String): Promise<Order[]> {
-    //--------- CONVERT DATE
-    const datePattern = /^(\d{2})-(\d{2})-(\d{4})$/;
-    const match = date.match(datePattern);
-    // Extrait les parties de la date de la correspondance
-    var day = parseInt(match[1], 10);
-    var month = parseInt(match[2], 10) - 1;
-    var year = parseInt(match[3], 10);
-    var formattedDate = new Date(year, month, day);
-    // Vérifie si la date est valide en comparant les composantes de la date
-    var isValid = formattedDate.getDate() === day && formattedDate.getMonth() === month && formattedDate.getFullYear() === year;
-    if (!isValid) {
-      throw new Exception(ExceptionTypeEnum.WrongDateFormat, 'The date format is not valid');
-    }
-
-    //--------- QUERY REQUEST
+  async findAllOrdersAfterDate(date: Date): Promise<Order[]> {
     const query = this.createQueryBuilder('order');
-    query.where('order.createdAt > :date', { date: formattedDate });
+    query.where('order.createdAt > :date', { date: date });
     const ordersOrm = await query.getMany();
     return this.mapOrdersOrmToOrders(ordersOrm);
   }
@@ -77,16 +47,26 @@ export default class OrderRepository extends Repository<Order> implements OrderR
   // - Récupérer toutes les commandes pour un CUSTOMER
   async findAllOrdersByCustomer(customer: string): Promise<Order[]> {
     const query = this.createQueryBuilder('order');
-
     query.where('order.customer = :customer', { customer });
-
     const ordersOrm = await query.getMany();
-
-    if (ordersOrm.length === 0) {
-      return null;
-    }
-
     return this.mapOrdersOrmToOrders(ordersOrm);
+  }
+
+  async findOrderById(id: string): Promise<Order> {
+    const query = this.createQueryBuilder('Order');
+
+    query.where('Order.id = :id', { id });
+
+    const order = await query.getOne();
+
+    return order;
+  }
+
+  async persist<Order>(entityToBePersisted: DeepPartial<Order>): Promise<Order> {
+    const orderOrmToBePersisted = this.create(entityToBePersisted);
+    const orderPersisted = await this.save(orderOrmToBePersisted);
+
+    return (await this.findOrderById(orderPersisted.id)) as unknown as Order;
   }
 
   // MAPPER FUNCTIONS
@@ -95,6 +75,7 @@ export default class OrderRepository extends Repository<Order> implements OrderR
 
     return order;
   }
+
   private mapOrdersOrmToOrders(orderOrm: Order[]): Order[] {
     return orderOrm.map((orderOrm) => this.mapOrderOrmToOrder(orderOrm));
   }

@@ -3,14 +3,15 @@ import Order from '../../model/entity/order.orm-entity';
 import { OrderRepositoryInterface } from '../../port/db/order.repository.interface';
 import { ExceptionTypeEnum } from '@src/modules/shared/domain/const/exception-type.enum';
 
-export class GetAllOrderByCustomerService {
+export class GetAllOrdersByCustomerService {
   constructor(private readonly orderRepository: OrderRepositoryInterface) {}
 
   async findAllOrdersByCustomer(customer: string): Promise<Order[]> {
-    const orders = await this.orderRepository.findAllOrdersByCustomer(customer);
-    if (orders.length === 0) {
-      throw new Exception(ExceptionTypeEnum.NotFound, `Orders for ${customer} not found`);
+    const regex = /^[a-zA-Z ]+$/;
+    if (customer.length < 6 || !regex.test(customer)) {
+      throw new Exception(ExceptionTypeEnum.BadRequest, `The customer name ${customer} is not valid`);
     }
+    const orders = await this.orderRepository.findAllOrdersByCustomer(customer);
     return orders;
   }
 }
